@@ -1,0 +1,7 @@
+services:
+  app:
+    build: ./
+    container_name: node-stag-con
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
