@@ -1,10 +1,10 @@
-FROM node:25 as Builder
+FROM node:alpine as Builder
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
