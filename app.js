@@ -41,7 +41,7 @@ const HTML = `<!DOCTYPE html>
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 18px 32px;
+      padding: 16px 20px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -50,8 +50,42 @@ const HTML = `<!DOCTYPE html>
       z-index: 100;
     }
     header .logo { font-size: 1.5rem; }
-    header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px; }
-    header span { font-size: 0.75rem; color: var(--muted); background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); padding: 2px 10px; border-radius: 20px; margin-left: 4px; }
+    header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
+    header span { font-size: 0.75rem; color: var(--muted); background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); padding: 2px 10px; border-radius: 20px; }
+
+    /* ── Hamburger ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+      margin-left: auto;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.3s;
+      font-size: unset;
+      color: unset;
+      padding: unset;
+      border: none;
+    }
+
+    /* ── Overlay ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 98;
+    }
+    .overlay.open { display: block; }
 
     /* ── Layout ── */
     .layout {
@@ -66,6 +100,7 @@ const HTML = `<!DOCTYPE html>
       border-right: 1px solid var(--border);
       padding: 20px 12px;
       flex-shrink: 0;
+      transition: transform 0.3s ease;
     }
     nav p { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); padding: 0 10px; margin-bottom: 8px; }
     nav button {
@@ -94,6 +129,46 @@ const HTML = `<!DOCTYPE html>
       flex: 1;
       padding: 32px;
       overflow-y: auto;
+      min-width: 0;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      header { padding: 14px 16px; }
+      header span { display: none; }
+
+      .hamburger { display: flex; }
+
+      nav {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        z-index: 99;
+        transform: translateX(-100%);
+        padding-top: 70px;
+        width: 240px;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+      }
+      nav.open { transform: translateX(0); }
+
+      main { padding: 20px 16px; }
+
+      .tool-header h2 { font-size: 1.1rem; }
+
+      .row { flex-direction: column; }
+      .row .card { min-width: unset; }
+
+      .btn-group { gap: 6px; }
+      button.btn { padding: 9px 14px; font-size: 0.8rem; }
+
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+
+      .copy-btn { position: static; display: block; margin-bottom: 8px; }
+    }
+
+    @media (max-width: 400px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .check-group { gap: 10px; }
     }
 
     .tool { display: none; animation: fadeIn 0.25s ease; }
@@ -267,10 +342,15 @@ const HTML = `<!DOCTYPE html>
   <span class="logo">🛠️</span>
   <h1>Dev Tools Hub</h1>
   <span>5 Tools</span>
+  <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </header>
 
+<div class="overlay" id="overlay" onclick="closeNav()"></div>
+
 <div class="layout">
-  <nav>
+  <nav id="sidebar">
     <p>Tools</p>
     <button class="active" onclick="switchTool('json', this)">
       <span class="icon">{ }</span> JSON Formatter
@@ -436,6 +516,17 @@ const HTML = `<!DOCTYPE html>
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'))
     document.getElementById('tool-' + name).classList.add('active')
     btn.classList.add('active')
+    closeNav() // auto-close sidebar on mobile after selecting a tool
+  }
+
+  function toggleNav() {
+    document.getElementById('sidebar').classList.toggle('open')
+    document.getElementById('overlay').classList.toggle('open')
+  }
+
+  function closeNav() {
+    document.getElementById('sidebar').classList.remove('open')
+    document.getElementById('overlay').classList.remove('open')
   }
 
   // ── Copy ──
